@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_client_delegates: ^0.0.2
+  openapi_client_delegates: ^0.0.3
 
 dev_dependencies:
   flutter_test:
