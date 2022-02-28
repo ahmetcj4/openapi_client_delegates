@@ -66,8 +66,13 @@ class PrintingClientDelegate extends DioClientDelegate {
         controller.sink.add(event);
       },
       onDone: () {
-        onResponse(_encoder.convert(jsonDecode(res.toString())));
-        controller.close();
+        var encoded = res.toString();
+        try {
+          encoded = _encoder.convert(jsonDecode(encoded));
+        } finally {
+          onResponse(encoded);
+          controller.close();
+        }
       },
       onError: (e, s) => controller.addError(e, s),
     );
