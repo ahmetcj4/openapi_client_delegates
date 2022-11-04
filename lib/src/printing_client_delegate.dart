@@ -2,18 +2,29 @@ part of openapi_client_delegates;
 
 /// This class is used for printing request and responses
 /// Example:
-///
-/// ApiClient apiClient = ApiClient(
-//         basePath: Config.url,
-//         apiClientDelegate: PrintingClientDelegate(
-//             onResponse: (String requestLog)=>log(requestLog),
-//         ),
-//       );
+///```dart
+///ApiClient apiClient = ApiClient(
+///   basePath: 'Config.url',
+///   apiClientDelegate: PrintingClientDelegate(
+///     onResponse: (String requestLog) => print(requestLog),
+///     logLevels: {
+///       'a/call/you/dont/want/to/log/like/file/upload': LogLevel.none,
+///       'a/frequent/call': LogLevel.url,
+///     },
+///   ),
+/// );
+///```
 class PrintingClientDelegate extends DioClientDelegate {
   final JsonEncoder _encoder = new JsonEncoder.withIndent('  ');
   final Function(String) onResponse;
+  final Map<String, LogLevel> logLevels;
+  final LogLevel defaultLogLevel;
 
-  PrintingClientDelegate({required this.onResponse});
+  PrintingClientDelegate({
+    required this.onResponse,
+    this.logLevels = const {},
+    this.defaultLogLevel = LogLevel.body,
+  });
 
   @override
   Future<ApiResponse> invokeAPI(
@@ -24,15 +35,21 @@ class PrintingClientDelegate extends DioClientDelegate {
     Options options, {
     bool passErrorsAsApiResponses = false,
   }) async {
+    final logLevel = logLevels[path] ?? defaultLogLevel;
     StringBuffer sb = new StringBuffer();
-    sb.writeln('REQUEST:');
-    sb.writeln('${options.method} $basePath$path');
-    sb.writeln('${options.headers}');
-    if (queryParams.isNotEmpty) {
-      sb.writeln(queryParams.fold('QUERY PARAMS:',
-          (s, element) => '$s {${element.name}:${element.value}}'));
+
+    if (logLevel.index >= LogLevel.url.index) {
+      sb.write('REQUEST: ${options.method} $basePath$path ');
     }
-    sb.writeln(_encoder.convert(body));
+
+    if (logLevel.index >= LogLevel.body.index) {
+      sb.writeln('\n${options.headers}');
+      if (queryParams.isNotEmpty) {
+        sb.writeln(queryParams.fold('QUERY PARAMS:', (s, element) => '$s {${element.name}:${element.value}}'));
+      }
+      sb.writeln(_encoder.convert(body));
+      sb.writeln();
+    }
 
     final apiResponse = await super.invokeAPI(
       basePath,
@@ -42,14 +59,23 @@ class PrintingClientDelegate extends DioClientDelegate {
       options,
     );
 
-    sb.writeln('\nRESPONSE: ${apiResponse.statusCode}');
-    sb.writeln('${apiResponse.headers}');
-    apiResponse.body = _copyResponse(apiResponse.body, (response) {
-      sb.writeln('BODY:');
-      sb.write(response);
+    if (logLevel.index >= LogLevel.url.index) {
+      sb.write('RESPONSE: ${apiResponse.statusCode}');
+    }
+
+    if (logLevel.index >= LogLevel.body.index) {
+      sb.writeln('\n${apiResponse.headers}');
+      apiResponse.body = _copyResponse(apiResponse.body, (response) {
+        sb.writeln('BODY:');
+        sb.write(response);
+        onResponse(sb.toString());
+        sb.clear();
+      });
+    } else if (logLevel.index >= LogLevel.url.index) {
       onResponse(sb.toString());
       sb.clear();
-    });
+    }
+
     return apiResponse;
   }
 
@@ -80,3 +106,5 @@ class PrintingClientDelegate extends DioClientDelegate {
     return controller.stream;
   }
 }
+
+enum LogLevel { none, url, body }
