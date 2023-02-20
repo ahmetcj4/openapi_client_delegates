@@ -1,3 +1,7 @@
+## 0.1.0
+
+* log on request start
+
 ## 0.0.4
 
 * add url based logging exclusion policy

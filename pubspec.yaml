@@ -1,6 +1,6 @@
 name: openapi_client_delegates
 description: Openapi Client Delegates for printing and mocking openapi generated responses
-version: 0.0.4
+version: 0.1.0
 homepage: https://github.com/ahmetcj4/openapi_client_delegates
 
 environment:
