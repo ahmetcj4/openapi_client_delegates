@@ -40,12 +40,14 @@ class PrintingClientDelegate extends DioClientDelegate {
 
     if (logLevel.index >= LogLevel.url.index) {
       sb.write('REQUEST: ${options.method} $basePath$path ');
+      onResponse(sb.toString());
     }
 
     if (logLevel.index >= LogLevel.body.index) {
       sb.writeln('\n${options.headers}');
       if (queryParams.isNotEmpty) {
-        sb.writeln(queryParams.fold('QUERY PARAMS:', (s, element) => '$s {${element.name}:${element.value}}'));
+        sb.writeln(queryParams.fold('QUERY PARAMS:',
+            (s, element) => '$s {${element.name}:${element.value}}'));
       }
       sb.writeln(_encoder.convert(body));
       sb.writeln();
@@ -95,6 +97,7 @@ class PrintingClientDelegate extends DioClientDelegate {
         var encoded = res.toString();
         try {
           encoded = _encoder.convert(jsonDecode(encoded));
+        } catch (_) {
         } finally {
           onResponse(encoded);
           controller.close();
