@@ -21,10 +21,11 @@ class PrintingClientDelegate extends DioClientDelegate {
   final LogLevel defaultLogLevel;
 
   PrintingClientDelegate({
+    Dio? client,
     required this.onResponse,
     this.logLevels = const {},
     this.defaultLogLevel = LogLevel.body,
-  });
+  }) : super(client);
 
   @override
   Future<ApiResponse> invokeAPI(
@@ -46,8 +47,7 @@ class PrintingClientDelegate extends DioClientDelegate {
     if (logLevel.index >= LogLevel.body.index) {
       sb.writeln('\n${options.headers}');
       if (queryParams.isNotEmpty) {
-        sb.writeln(queryParams.fold('QUERY PARAMS:',
-            (s, element) => '$s {${element.name}:${element.value}}'));
+        sb.writeln(queryParams.fold('QUERY PARAMS:', (s, element) => '$s {${element.name}:${element.value}}'));
       }
       sb.writeln(_encoder.convert(body));
       sb.writeln();
