@@ -1,3 +1,7 @@
+## 0.1.1
+
+* constructor takes dio client argument
+
 ## 0.1.0
 
 * log on request start

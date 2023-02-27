@@ -119,10 +119,10 @@ packages:
     dependency: "direct main"
     description:
       name: openapi_client_delegates
-      sha256: "10412ca89d9b87ad86061192a30187dc8b1fc24ee2707da811adf5a2e1f41711"
+      sha256: "939e4ff29dfe6fd465a86b565bd707953a1ec0cb5ecf939c74845f0e2770ba09"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "0.1.0"
   openapi_dart_common:
     dependency: transitive
     description:
